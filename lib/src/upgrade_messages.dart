@@ -1,4 +1,5 @@
 // Copyright (c) 2020-2024 Larry Aasen. All rights reserved.
+// Edited by LamBaoBao for SDS company
 
 import 'dart:ui';
 
@@ -257,7 +258,7 @@ class UpgraderMessages {
         break;
       case 'vi':
         message =
-            'Đã có phiên bản mới của {{appName}}. Phiên bản {{currentAppStoreVersion}} đã sẵn sàng, bạn đang dùng {{currentInstalledVersion}}.';
+            'LBB Đã có phiên bản mới của {{appName}}. Phiên bản {{currentAppStoreVersion}} đã sẵn sàng, bạn đang dùng {{currentInstalledVersion}}.';
         break;
       case 'zh':
         message =

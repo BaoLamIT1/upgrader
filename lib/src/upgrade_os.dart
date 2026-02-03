@@ -1,9 +1,10 @@
 /*
  * Copyright (c) 2021-2024 Larry Aasen. All rights reserved.
+ * Edited by LamBaoBao for SDS company
  */
 
-import "package:os_detect/os_detect.dart" as platform;
 import 'package:flutter/foundation.dart';
+import "package:os_detect/os_detect.dart" as platform;
 
 enum UpgraderOSType {
   android,

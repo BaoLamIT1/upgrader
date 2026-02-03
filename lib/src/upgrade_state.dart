@@ -1,4 +1,5 @@
 // Copyright (c) 2024 Larry Aasen. All rights reserved.
+// Edited by LamBaoBao for SDS company
 
 import 'package:http/http.dart' as http;
 import 'package:package_info_plus/package_info_plus.dart';

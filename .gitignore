@@ -19,3 +19,6 @@ example/test/driver_test/screenshots
 .qodo
 ios/Flutter/ephemeral/flutter_lldb_helper.py
 ios/Flutter/ephemeral/flutter_lldbinit
+
+# FVM Version Cache
+.fvm/
