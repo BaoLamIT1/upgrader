@@ -34,6 +34,11 @@ class UpgradeAlert extends StatefulWidget {
     this.cupertinoButtonTextStyle,
     this.dialogKey,
     this.navigatorKey,
+    this.icon,
+    this.dialogBackgroundColor,
+    this.textColor,
+    this.buttonColor,
+    this.buttonTextColor,
     this.child,
   }) : upgrader = upgrader ?? Upgrader.sharedInstance;
 
@@ -82,6 +87,13 @@ class UpgradeAlert extends StatefulWidget {
 
   /// For use by the Router architecture as part of the RouterDelegate.
   final GlobalKey<NavigatorState>? navigatorKey;
+
+  /// For use to config dialog
+  final Widget? icon;
+  final Color? dialogBackgroundColor;
+  final Color? textColor;
+  final List<Color>? buttonColor;
+  final Color? buttonTextColor;
 
   /// The [child] contained by the widget.
   final Widget? child;
@@ -156,10 +168,11 @@ class UpgradeAlertState extends State<UpgradeAlert> {
               shouldDisplayReleaseNotes ? widget.upgrader.releaseNotes : null,
           barrierDismissible: widget.barrierDismissible,
           messages: appMessages,
-          icon: Icon(
-            Icons.access_time_rounded,
-            color: Colors.blue,
-          ),
+          icon: widget.icon,
+          dialogBackgroundColor: widget.dialogBackgroundColor,
+          textColor: widget.textColor,
+          buttonColor: widget.buttonColor,
+          buttonTextColor: widget.buttonTextColor,
         );
       });
     }
@@ -521,6 +534,7 @@ class UpgradeAlertState extends State<UpgradeAlert> {
       ),
     );
   }
+
   // Widget alertDialog(
   //     Key? key,
   //     String title,
