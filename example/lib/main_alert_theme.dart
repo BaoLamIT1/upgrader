@@ -49,6 +49,7 @@ class MyUpgradeAlertState extends UpgradeAlertState {
     bool cupertino,
     UpgraderMessages messages, {
     Widget? icon,
+    bool? isFullScreen,
     Color? dialogBackgroundColor,
     Color? textColor,
     List<Color>? buttonColor,
@@ -80,6 +81,7 @@ class MyUpgradeAlertState extends UpgradeAlertState {
         textColor: textColor,
         buttonColor: buttonColor,
         buttonTextColor: buttonTextColor,
+        isFullScreen: isFullScreen,
       ),
     );
   }

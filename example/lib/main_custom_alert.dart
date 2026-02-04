@@ -68,6 +68,7 @@ class MyUpgradeAlertState extends UpgradeAlertState {
     Color? textColor,
     List<Color>? buttonColor,
     Color? buttonTextColor,
+    bool? isFullScreen,
   }) {
     showDialog(
         context: context,

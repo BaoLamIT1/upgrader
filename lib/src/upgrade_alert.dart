@@ -40,6 +40,7 @@ class UpgradeAlert extends StatefulWidget {
     this.buttonColor,
     this.buttonTextColor,
     this.child,
+    this.isFullScreen,
   }) : upgrader = upgrader ?? Upgrader.sharedInstance;
 
   /// The upgraders used to configure the upgrade dialog.
@@ -94,6 +95,7 @@ class UpgradeAlert extends StatefulWidget {
   final Color? textColor;
   final List<Color>? buttonColor;
   final Color? buttonTextColor;
+  final bool? isFullScreen;
 
   /// The [child] contained by the widget.
   final Widget? child;
@@ -173,6 +175,7 @@ class UpgradeAlertState extends State<UpgradeAlert> {
           textColor: widget.textColor,
           buttonColor: widget.buttonColor,
           buttonTextColor: widget.buttonTextColor,
+          isFullScreen: widget.isFullScreen,
         );
       });
     }
@@ -248,6 +251,7 @@ class UpgradeAlertState extends State<UpgradeAlert> {
     Color? textColor,
     List<Color>? buttonColor,
     Color? buttonTextColor,
+    bool? isFullScreen,
   }) {
     if (widget.upgrader.state.debugLogging) {
       print('upgrader: showTheDialog title: $title');
@@ -289,6 +293,7 @@ class UpgradeAlertState extends State<UpgradeAlert> {
             textColor: textColor,
             buttonColor: buttonColor,
             buttonTextColor: buttonTextColor,
+            isFullScreen: isFullScreen,
           ),
         );
 
@@ -332,6 +337,7 @@ class UpgradeAlertState extends State<UpgradeAlert> {
     BuildContext context,
     bool cupertino,
     UpgraderMessages messages, {
+    bool? isFullScreen,
     Widget? icon,
     Color? dialogBackgroundColor,
     Color? textColor,
@@ -340,8 +346,8 @@ class UpgradeAlertState extends State<UpgradeAlert> {
   }) {
     // Logic kiểm tra nút bấm (Giữ nguyên logic gốc)
     final isBlocked = widget.upgrader.blocked();
-    final showIgnore = isBlocked ? false : widget.showIgnore;
-    final showLater = isBlocked ? false : widget.showLater;
+    final showIgnore = isBlocked ? true : widget.showIgnore;
+    final showLater = isBlocked ? true : widget.showLater;
 
     // Màu sắc chủ đạo (Lấy theo style Dark Mode của Ảnh 1)
     Color dialogBackgroundColour = dialogBackgroundColor ?? Color(0xFF191D2D);
@@ -377,162 +383,197 @@ class UpgradeAlertState extends State<UpgradeAlert> {
       );
     }
 
-    // Trả về Dialog tùy chỉnh hoàn toàn
-    return Dialog(
-      key: key,
-      backgroundColor: Colors.transparent,
-      elevation: 0,
-      insetPadding: const EdgeInsets.all(20),
-      child: Container(
-        constraints: const BoxConstraints(maxWidth: 400),
-        decoration: BoxDecoration(
-          color: dialogBackgroundColour,
-          borderRadius: BorderRadius.circular(24),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.5),
-              blurRadius: 20,
-              offset: const Offset(0, 10),
-            )
-          ],
-        ),
-        child: Stack(
-          children: [
-            Padding(
-              padding: const EdgeInsets.fromLTRB(24, 40, 24, 24),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  // 1. Icon Header
-                  if (icon != null) icon,
-                  const SizedBox(height: 12),
+    Widget child = Container(
+      constraints: const BoxConstraints(maxWidth: 400),
+      decoration: BoxDecoration(
+        color: dialogBackgroundColour,
+        borderRadius: BorderRadius.circular(24),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.5),
+            blurRadius: 20,
+            offset: const Offset(0, 10),
+          )
+        ],
+      ),
+      child: Stack(
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(24, 40, 24, 24),
+            child: Column(
+              mainAxisSize:
+                  isFullScreen ?? false ? MainAxisSize.max : MainAxisSize.min,
+              children: [
+                // 1. Icon Header
+                if (icon != null) icon,
+                const SizedBox(height: 12),
 
-                  // 2. Title
-                  Text(
-                    title,
-                    style: titleStyle,
-                    textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(height: 12),
+                // 2. Title
+                Text(
+                  title,
+                  style: titleStyle,
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 12),
 
-                  // 3. Scrollable Content (Message + Release Notes)
-                  Flexible(
-                    child: SingleChildScrollView(
-                      physics: const BouncingScrollPhysics(),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          Text(
-                            message,
-                            style: contentStyle,
-                            textAlign: TextAlign.center,
+                // 3. Scrollable Content (Message + Release Notes)
+                isFullScreen ?? false
+                    ? Expanded(
+                        child: SingleChildScrollView(
+                          physics: const BouncingScrollPhysics(),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Text(
+                                message,
+                                style: contentStyle,
+                                textAlign: TextAlign.center,
+                              ),
+                              if (widget.showPrompt) ...[
+                                const SizedBox(height: 10),
+                                Text(
+                                  messages.message(UpgraderMessage.prompt) ??
+                                      '',
+                                  style: contentStyle,
+                                  textAlign: TextAlign.center,
+                                ),
+                              ],
+                              if (notes != null)
+                                Align(
+                                    alignment: Alignment.centerLeft,
+                                    child: notes),
+                            ],
                           ),
-                          if (widget.showPrompt) ...[
-                            const SizedBox(height: 10),
-                            Text(
-                              messages.message(UpgraderMessage.prompt) ?? '',
-                              style: contentStyle,
-                              textAlign: TextAlign.center,
-                            ),
-                          ],
-                          if (notes != null)
-                            Align(
-                                alignment: Alignment.centerLeft, child: notes),
-                        ],
-                      ),
-                    ),
-                  ),
-
-                  const SizedBox(height: 24),
-
-                  // 4. Main Update Button (Gradient Style)
-                  InkWell(
-                    onTap: () =>
-                        onUserUpdated(context, !widget.upgrader.blocked()),
-                    borderRadius: BorderRadius.circular(30),
-                    child: Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.symmetric(vertical: 14),
-                      decoration: BoxDecoration(
-                        gradient: const LinearGradient(
-                          colors: [primaryBlue, cyanBlue],
-                          begin: Alignment.centerLeft,
-                          end: Alignment.centerRight,
                         ),
-                        borderRadius: BorderRadius.circular(30),
-                        boxShadow: [
-                          BoxShadow(
-                            color: primaryBlue.withOpacity(0.4),
-                            blurRadius: 10,
-                            offset: const Offset(0, 4),
+                      )
+                    : Flexible(
+                        child: SingleChildScrollView(
+                          physics: const BouncingScrollPhysics(),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Text(
+                                message,
+                                style: contentStyle,
+                                textAlign: TextAlign.center,
+                              ),
+                              if (widget.showPrompt) ...[
+                                const SizedBox(height: 10),
+                                Text(
+                                  messages.message(UpgraderMessage.prompt) ??
+                                      '',
+                                  style: contentStyle,
+                                  textAlign: TextAlign.center,
+                                ),
+                              ],
+                              if (notes != null)
+                                Align(
+                                    alignment: Alignment.centerLeft,
+                                    child: notes),
+                            ],
                           ),
-                        ],
-                      ),
-                      child: Text(
-                        messages.message(UpgraderMessage.buttonTitleUpdate) ??
-                            'Update Now',
-                        textAlign: TextAlign.center,
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
                         ),
                       ),
+                const SizedBox(height: 12),
+                // 4. Main Update Button (Gradient Style)
+                InkWell(
+                  onTap: () =>
+                      onUserUpdated(context, !widget.upgrader.blocked()),
+                  borderRadius: BorderRadius.circular(30),
+                  child: Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    decoration: BoxDecoration(
+                      gradient: const LinearGradient(
+                        colors: [primaryBlue, cyanBlue],
+                        begin: Alignment.centerLeft,
+                        end: Alignment.centerRight,
+                      ),
+                      borderRadius: BorderRadius.circular(30),
+                      boxShadow: [
+                        BoxShadow(
+                          color: primaryBlue.withOpacity(0.4),
+                          blurRadius: 10,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
                     ),
-                  ),
-
-                  // 5. Secondary Buttons (Later & Ignore) - Xếp gọn bên dưới
-                  if (showLater || showIgnore)
-                    Padding(
-                      padding: const EdgeInsets.only(top: 12.0),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          if (showLater)
-                            TextButton(
-                              onPressed: () => onUserLater(context, true),
-                              child: Text(
-                                messages.message(
-                                        UpgraderMessage.buttonTitleLater) ??
-                                    'Later',
-                                style: const TextStyle(color: Colors.white54),
-                              ),
-                            ),
-                          if (showLater && showIgnore)
-                            const Text(" | ",
-                                style: TextStyle(color: Colors.white24)),
-                          if (showIgnore)
-                            TextButton(
-                              onPressed: () => onUserIgnored(context, true),
-                              child: Text(
-                                messages.message(
-                                        UpgraderMessage.buttonTitleIgnore) ??
-                                    'Ignore',
-                                style: const TextStyle(color: Colors.white54),
-                              ),
-                            ),
-                        ],
+                    child: Text(
+                      messages.message(UpgraderMessage.buttonTitleUpdate) ??
+                          'Update Now',
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
                       ),
                     ),
-                ],
+                  ),
+                ),
+
+                // 5. Secondary Buttons (Later & Ignore) - Xếp gọn bên dưới
+                if (showLater || showIgnore)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 12.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        if (showLater)
+                          TextButton(
+                            onPressed: () => onUserLater(context, true),
+                            child: Text(
+                              messages.message(
+                                      UpgraderMessage.buttonTitleLater) ??
+                                  'Later',
+                              style: const TextStyle(color: Colors.white54),
+                            ),
+                          ),
+                        if (showLater && showIgnore)
+                          const Text(" | ",
+                              style: TextStyle(color: Colors.white24)),
+                        if (showIgnore)
+                          TextButton(
+                            onPressed: () => onUserIgnored(context, true),
+                            child: Text(
+                              messages.message(
+                                      UpgraderMessage.buttonTitleIgnore) ??
+                                  'Ignore',
+                              style: const TextStyle(color: Colors.white54),
+                            ),
+                          ),
+                      ],
+                    ),
+                  ),
+              ],
+            ),
+          ),
+
+          // Nút đóng nhanh (X) ở góc phải trên
+          if ((showLater || showIgnore))
+            Positioned(
+              right: 8,
+              top: 8,
+              child: IconButton(
+                icon: const Icon(Icons.close, color: Colors.white38),
+                onPressed: () =>
+                    onUserLater(context, true), // Hành vi đóng = Later
               ),
             ),
-
-            // Nút đóng nhanh (X) ở góc phải trên (Optional - style giống ảnh 1 thường có)
-            if ((showLater || showIgnore))
-              Positioned(
-                right: 8,
-                top: 8,
-                child: IconButton(
-                  icon: const Icon(Icons.close, color: Colors.white38),
-                  onPressed: () =>
-                      onUserLater(context, true), // Hành vi đóng = Later
-                ),
-              ),
-          ],
-        ),
+        ],
       ),
     );
+
+    return isFullScreen ?? false
+        ? Dialog.fullscreen(
+            key: key,
+            backgroundColor: Colors.transparent,
+            //   insetPadding: EdgeInsets.zero,
+            child: child)
+        : Dialog(
+            key: key,
+            backgroundColor: Colors.transparent,
+            child: child,
+          );
   }
 
   // Widget alertDialog(
