@@ -63,6 +63,11 @@ class MyUpgradeAlertState extends UpgradeAlertState {
     required String? releaseNotes,
     required bool barrierDismissible,
     required UpgraderMessages messages,
+    Widget? icon,
+    Color? dialogBackgroundColor,
+    Color? textColor,
+    List<Color>? buttonColor,
+    Color? buttonTextColor,
   }) {
     showDialog(
         context: context,

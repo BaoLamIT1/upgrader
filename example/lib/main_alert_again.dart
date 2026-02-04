@@ -16,7 +16,9 @@ class MyApp extends StatelessWidget {
   MyApp({super.key});
 
   final _upgrader = Upgrader(
-      debugLogging: true, durationUntilAlertAgain: const Duration(seconds: 10));
+      messages: UpgraderMessages(),
+      debugLogging: true,
+      durationUntilAlertAgain: const Duration(seconds: 10));
 
   @override
   Widget build(BuildContext context) {
