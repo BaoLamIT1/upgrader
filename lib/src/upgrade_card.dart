@@ -163,6 +163,18 @@ class UpgradeCardState extends State<UpgradeCard> {
                 padding: const EdgeInsets.only(top: 15.0),
                 child: Text(appMessages.message(UpgraderMessage.prompt) ?? ''),
               ),
+            Positioned(
+                top: -50,
+                child: CircleAvatar(
+                  backgroundColor: Colors.white,
+                  radius: 40,
+                  child: Center(
+                      child: Icon(
+                    Icons.update,
+                    size: 60,
+                    color: Colors.blue,
+                  )),
+                )),
             if (notes != null) notes,
           ],
         ),
